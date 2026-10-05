@@ -4,8 +4,26 @@
 // LOCALLY (JWKS cached in-process) and decorates `request.atlas`. Read it with
 // `getAuth(request)`; gate a route with `requireAuth(request, reply)` as a
 // preHandler. No Atlas endpoint is called per request.
-import Fastify from 'fastify';
-import { atlasPlugin, getAuth, requireAuth } from '@atlasauth/fastify';
+import Fastify, { type FastifyPluginCallback, type FastifyReply, type FastifyRequest } from 'fastify';
+import {
+  atlasPlugin,
+  getAuth as getAtlasAuth,
+  requireAuth as requireAtlasAuth,
+  type AtlasAuth,
+  type AtlasFastifyReply,
+  type AtlasFastifyRequest,
+} from '@atlasauth/fastify';
+
+// @atlasauth/fastify types Fastify structurally (it doesn't import `fastify`),
+// and those minimal shapes don't line up with Fastify's real generics. These
+// three thin adapters are the only casts; they are runtime no-ops.
+const getAuth = (request: FastifyRequest): AtlasAuth =>
+  getAtlasAuth(request as unknown as AtlasFastifyRequest);
+const requireAuth = (request: FastifyRequest, reply: FastifyReply): void => {
+  requireAtlasAuth(request as unknown as AtlasFastifyRequest, reply as unknown as AtlasFastifyReply);
+};
+const atlas = (options: Parameters<typeof atlasPlugin>[0]): FastifyPluginCallback =>
+  atlasPlugin(options) as unknown as FastifyPluginCallback;
 
 const { ATLAS_JWKS_URL, ATLAS_ISSUER, ATLAS_PUBLISHABLE_KEY, PORT = '3000' } = process.env;
 
@@ -17,7 +35,7 @@ if (!ATLAS_JWKS_URL || !ATLAS_ISSUER) {
 const app = Fastify({ logger: true });
 
 await app.register(
-  atlasPlugin({
+  atlas({
     jwksUrl: ATLAS_JWKS_URL,
     issuer: ATLAS_ISSUER,
     publishableKey: ATLAS_PUBLISHABLE_KEY,

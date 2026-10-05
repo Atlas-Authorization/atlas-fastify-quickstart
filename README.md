@@ -5,7 +5,7 @@ A minimal [Fastify](https://fastify.dev) API protected by
 
 ## What's wired
 
-- **`src/server.js`** — `atlasPlugin()` from `@atlasauth/fastify` verifies the
+- **`src/server.ts`** — `atlasPlugin()` from `@atlasauth/fastify` verifies the
   session JWT **locally** against the instance JWKS and decorates
   `request.atlas`.
   - `GET /api/me` reads `getAuth(request)` — public.
@@ -17,7 +17,8 @@ A minimal [Fastify](https://fastify.dev) API protected by
 ```sh
 npm install
 cp .env.example .env     # fill in your Atlas instance values
-node --env-file=.env --watch src/server.js
+npm run dev   # tsx watch --env-file=.env src/server.ts
+npm run typecheck   # tsc --noEmit  (npm run build -> dist/)
 ```
 
 ```sh
