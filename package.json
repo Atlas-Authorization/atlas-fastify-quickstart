@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@atlasauth/fastify": "^0.1.0",
+    "@atlasauth/fastify": "^0.6.0",
     "fastify": "^5.2.0"
   },
   "devDependencies": {
